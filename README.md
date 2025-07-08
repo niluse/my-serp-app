@@ -20,7 +20,7 @@ Bu uygulama, bir web sitesinin (domain) belirli bir anahtar kelime (keyword) iç
 Projeyi klonladıktan sonra:
 
 ```bash
-git clone https://github.com/kullanici-adi/serp-app.git
+git clone https://github.com/niluse/my-serp-app.git
 cd serp-app
 npm install
 ```
