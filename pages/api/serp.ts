@@ -14,7 +14,7 @@ export default async function handler(
       params: {
         api_key: process.env.NEXT_PUBLIC_SERP_API_KEY,
         q,
-        num: 100,
+        num: 50,
         hl: "tr",
         gl: "tr",
       },

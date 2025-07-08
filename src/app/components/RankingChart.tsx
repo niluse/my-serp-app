@@ -20,30 +20,21 @@ const RankingChart = ({ results, highlightDomain }: RankingChartProps) => {
   useEffect(() => {
     if (!chartRef.current) return;
 
+    const ctx = chartRef.current.getContext("2d");
+    if (!ctx) return;
+
+    // Önceki grafik varsa yok et
     if (chartInstanceRef.current) {
       chartInstanceRef.current.destroy();
     }
-
-    const ctx = chartRef.current.getContext("2d");
-    if (!ctx) return;
 
     const cleanedDomain = highlightDomain
       .replace(/^https?:\/\//, "")
       .replace(/\/$/, "")
       .toLowerCase();
 
-    const backgroundColors = results.map(
-      (r) =>
-        r.link.toLowerCase().includes(cleanedDomain)
-          ? "rgba(255, 99, 132, 0.8)" // kırmızı
-          : "rgba(75, 192, 192, 0.7)" // turkuaz
-    );
-
-    const borderColors = results.map((r) =>
-      r.link.toLowerCase().includes(cleanedDomain)
-        ? "rgba(255, 99, 132, 1)"
-        : "rgba(75, 192, 192, 1)"
-    );
+    const getColor = (link: string, highlight: boolean) =>
+      highlight ? "rgba(255, 99, 132, 0.8)" : "rgba(75, 192, 192, 0.7)";
 
     chartInstanceRef.current = new Chart(ctx, {
       type: "bar",
@@ -55,8 +46,15 @@ const RankingChart = ({ results, highlightDomain }: RankingChartProps) => {
           {
             label: "Pozisyon",
             data: results.map((r) => r.position),
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
+            backgroundColor: results.map((r) =>
+              getColor(r.link, r.link.toLowerCase().includes(cleanedDomain))
+            ),
+            borderColor: results.map((r) =>
+              getColor(
+                r.link,
+                r.link.toLowerCase().includes(cleanedDomain)
+              ).replace("0.8", "1")
+            ),
             borderWidth: 1,
           },
         ],
@@ -67,9 +65,7 @@ const RankingChart = ({ results, highlightDomain }: RankingChartProps) => {
           legend: { display: false },
           tooltip: {
             callbacks: {
-              label: function (context) {
-                return `Pozisyon: ${context.raw}`;
-              },
+              label: (context) => `Pozisyon: ${context.raw}`,
             },
           },
         },

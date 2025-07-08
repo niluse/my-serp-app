@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import RankingChart from "./components/RankingChart";
+import History from "./components/History";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 interface Result {
@@ -21,23 +22,21 @@ export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [result, setResult] = useState<Result | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [message, setMessage] = useState<{
+    text: string;
+    type: "success" | "error";
+  } | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [allResults, setAllResults] = useState<ResultItem[]>([]);
 
-  const [domainTouched, setDomainTouched] = useState(false);
-  const [keywordTouched, setKeywordTouched] = useState(false);
-
   const handleSearch = async () => {
-    setDomainTouched(true);
-    setKeywordTouched(true);
-
-    if (!domain || !keyword) return;
+    if (!domain || !keyword) {
+      setMessage({ text: "Lütfen tüm alanları doldurun.", type: "error" });
+      return;
+    }
 
     setLoading(true);
-    setError("");
-    setSuccess("");
+    setMessage(null);
     setResult(null);
 
     try {
@@ -55,7 +54,8 @@ export default function Home() {
 
       const cleanedDomain = domain
         .replace(/^https?:\/\//, "")
-        .replace(/\/$/, "");
+        .replace(/\/$/, "")
+        .toLowerCase();
 
       const rankingResults: ResultItem[] = organic.map(
         (item: any, index: number) => ({
@@ -67,21 +67,21 @@ export default function Home() {
 
       setAllResults(rankingResults);
 
-      const organicIdx = organic.findIndex((r: any) =>
-        (r.link as string).includes(cleanedDomain)
+      const foundIndex = organic.findIndex((r: any) =>
+        (r.link as string).toLowerCase().includes(cleanedDomain)
       );
 
-      const organicResult = {
+      const organicResult: Result = {
         keyword,
-        position: organicIdx >= 0 ? organicIdx + 1 : null,
-        url: organicIdx >= 0 ? organic[organicIdx].link : null,
+        position: foundIndex >= 0 ? foundIndex + 1 : null,
+        url: foundIndex >= 0 ? organic[foundIndex].link : null,
       };
 
       setResult(organicResult);
-      setSuccess("Arama başarıyla yapıldı.");
+      setMessage({ text: "Arama başarıyla yapıldı.", type: "success" });
 
       const newEntry = {
-        date: new Date().toLocaleString(),
+        date: new Date().toISOString(),
         result: organicResult,
       };
 
@@ -89,8 +89,11 @@ export default function Home() {
       setHistory(updatedHistory);
       localStorage.setItem("serp_history", JSON.stringify(updatedHistory));
     } catch (err) {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
       console.error(err);
+      setMessage({
+        text: "Bir hata oluştu. Lütfen tekrar deneyin.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -111,32 +114,22 @@ export default function Home() {
             <label className="form-label">Domain</label>
             <input
               type="text"
-              className={`form-control ${
-                domainTouched && !domain ? "is-invalid" : ""
-              }`}
+              className="form-control"
               placeholder="örnek: example.com"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
             />
-            {domainTouched && !domain && (
-              <div className="invalid-feedback">Bu alan gerekli</div>
-            )}
           </div>
 
           <div className="mb-3">
             <label className="form-label">Anahtar Kelime</label>
             <input
               type="text"
-              className={`form-control ${
-                keywordTouched && !keyword ? "is-invalid" : ""
-              }`}
+              className="form-control"
               placeholder="örnek: kahve makineleri"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
             />
-            {keywordTouched && !keyword && (
-              <div className="invalid-feedback">Bu alan gerekli</div>
-            )}
           </div>
 
           <button
@@ -153,8 +146,11 @@ export default function Home() {
             )}
           </button>
 
-          {error && <div className="alert alert-danger mt-3">{error}</div>}
-          {success && <div className="alert alert-success mt-3">{success}</div>}
+          {message && (
+            <div className={`alert mt-3 alert-${message.type}`}>
+              {message.text}
+            </div>
+          )}
         </div>
       </div>
 
@@ -177,20 +173,7 @@ export default function Home() {
 
       {history.length > 0 && (
         <div className="mt-4 w-100" style={{ maxWidth: 700 }}>
-          <h5>Geçmiş Aramalar</h5>
-          <ul className="list-group">
-            {history.map((entry, i) => (
-              <li
-                key={i}
-                className="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <strong>{entry.result.keyword}</strong> —{" "}
-                  {entry.result.position ? `#${entry.result.position}` : "Yok"}
-                </div>
-                <small className="text-muted">{entry.date}</small>
-              </li>
-            ))}
-          </ul>
+          <History />
         </div>
       )}
 
