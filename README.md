@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔍 SERP Sıralama Kontrol Uygulaması
 
-## Getting Started
+Bu uygulama, bir web sitesinin (domain) belirli bir anahtar kelime (keyword) için Google’daki organik sıralamasını kontrol etmeye yarar. Uygulama, [SerpApi](https://serpapi.com/) üzerinden veri çeker ve sonuçları kullanıcı dostu bir arayüzde listeler. Ayrıca geçmiş sorgular kaydedilir ve sıralama grafiği olarak gösterilir.
 
-First, run the development server:
+## 🚀 Canlı Demo
+
+👉 [Uygulamayı Görüntüle](https://my-serp-app-p8y3.vercel.app/)
+
+## 🛠️ Kullanılan Teknolojiler
+
+- **Next.js (App Router)**
+- **TypeScript**
+- **Bootstrap 5** (responsive arayüz)
+- **Chart.js** (grafik gösterimi)
+- **SerpApi** (Google arama sonuçları API)
+- **LocalStorage** (sorgu geçmişi)
+
+## 📦 Kurulum
+
+Projeyi klonladıktan sonra:
+
+```bash
+git clone https://github.com/kullanici-adi/serp-app.git
+cd serp-app
+npm install
+```
+
+### .env.local dosyası
+
+Aşağıdaki gibi `.env.local` dosyasını oluşturun:
+
+```env
+SERP_API_KEY=senin_serpapi_anahtarin
+```
+
+## ▶️ Uygulamayı Başlatma
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Tarayıcıda şu adresi aç: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Özellikler
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🔍 Arama İşlevi
 
-## Learn More
+- Domain ve anahtar kelime girerek sorgulama yapılabilir.
+- İlk 50 sonuç arasında verilen domain varsa sıralaması gösterilir.
+- Domain sonuçlarda yoksa "Bulunamadı" mesajı verilir.
 
-To learn more about Next.js, take a look at the following resources:
+### 📊 Grafiksel Gösterim
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Google’daki ilk 50 organik sonucu gösteren bar chart.
+- Kullanıcının domaini farklı renkle vurgulanır.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 🕓 Geçmiş
 
-## Deploy on Vercel
+- Son 10 arama geçmişi LocalStorage'da saklanır.
+- Sayfa yenilense bile geçmiş korunur.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### ⚠️ Hata Yönetimi
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Eksik alanlarda uyarı verir.
+- API hatalarında kullanıcı bilgilendirilir.
+
+## 🧪 Geliştirici Notları
+
+- `Bootstrap` ile hızlı ve sade UI sağlandı.
+- Grafikler `Chart.js` ile dinamik şekilde güncelleniyor.
+- `localStorage` üzerinden geçmiş yönetimi sağlandı.
+- API tarafında Next.js API route kullanıldı (`/api/serp`), bu endpoint SerpApi’ye proxy görevi görür.
+
+## 📁 Dosya Yapısı (Özet)
+
+```bash
+├── components
+│   ├── History.tsx
+│   ├── RankingChart.tsx
+│   ├── ResultTable.tsx
+│   ├── SearchForm.tsx
+│   └── ErrorAlert.tsx
+├── pages
+│   └── api
+│       └── serp.ts       # SerpApi proxy handler
+├── app
+│   └── page.tsx          # Ana sayfa bileşeni
+├── public
+├── styles
+├── .env.local
+├── package.json
+└── README.md
+```
+
+## 📌 Geliştirici Notu
+
+Bu uygulama, SEO analizleri ve rakip sıralama kontrolleri için sade ve kullanıcı dostu bir araç olarak geliştirilmiştir. Özellikle küçük işletmelerin veya freelancerların hızlıca pozisyonlarını takip etmesi için uygundur.
+
+## 📄 Lisans
+
+MIT Lisansı
