@@ -17,6 +17,14 @@ interface ResultItem {
   position: number;
 }
 
+interface HistoryItem {
+  date: string;
+  result: {
+    keyword: string;
+    position: number | null;
+  };
+}
+
 export default function Home() {
   const [domain, setDomain] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -26,7 +34,7 @@ export default function Home() {
     text: string;
     type: "success" | "error";
   } | null>(null);
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [allResults, setAllResults] = useState<ResultItem[]>([]);
 
   const handleSearch = async () => {
@@ -42,7 +50,7 @@ export default function Home() {
     try {
       const response = await axios.get("/api/serp", {
         params: {
-          api_key: process.env.NEXT_PUBLIC_SERP_API_KEY,
+          api_key: process.env.SERP_API_KEY,
           q: keyword,
           num: 50,
           hl: "tr",
@@ -58,7 +66,7 @@ export default function Home() {
         .toLowerCase();
 
       const rankingResults: ResultItem[] = organic.map(
-        (item: any, index: number) => ({
+        (item: { title: string; link: string }, index: number) => ({
           title: item.title || `Sonuç ${index + 1}`,
           link: item.link,
           position: index + 1,
@@ -67,8 +75,8 @@ export default function Home() {
 
       setAllResults(rankingResults);
 
-      const foundIndex = organic.findIndex((r: any) =>
-        (r.link as string).toLowerCase().includes(cleanedDomain)
+      const foundIndex = organic.findIndex((r: { link: string }) =>
+        r.link.toLowerCase().includes(cleanedDomain)
       );
 
       const organicResult: Result = {
@@ -162,11 +170,11 @@ export default function Home() {
               <strong>{result.keyword}</strong> için <strong>{domain}</strong>{" "}
               <br />
               <span className="text-success">
-                Google'da <strong>{result.position}.</strong> sırada!
+                Google&apos;da <strong>{result.position}.</strong> sırada!
               </span>
             </p>
           ) : (
-            <p className="text-danger">Google ilk 50'de bulunamadı.</p>
+            <p className="text-danger">Google ilk 50&apos;de bulunamadı.</p>
           )}
         </div>
       )}
