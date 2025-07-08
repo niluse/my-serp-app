@@ -5,7 +5,7 @@ import axios from "axios";
 import SearchForm from "./components/SearchForm";
 import ResultTable from "./components/ResultTable";
 import ErrorAlert from "./components/ErrorAlert";
-
+import History from "./components/History";
 interface ResultType {
   keyword: string;
   position: number | null;
@@ -33,18 +33,32 @@ export default function HomePage() {
         },
       });
 
-      const organic = response.data.organic_results || [];
-      const idx = organic.findIndex((r: any) =>
-        (r.link as string).includes(
-          domain.replace(/^https?:\/\//, "").replace(/\/$/, "")
-        )
-      );
+      const cleanedDomain = domain
+        .replace(/^https?:\/\//, "")
+        .replace(/\/$/, "");
 
-      setResult({
+      const organic = response.data.organic_results || [];
+
+      const organicIdx = organic.findIndex((r: any) =>
+        (r.link as string).includes(cleanedDomain)
+      );
+      const organicResult = {
         keyword,
-        position: idx >= 0 ? idx + 1 : null,
-        url: idx >= 0 ? organic[idx].link : null,
+        position: organicIdx >= 0 ? organicIdx + 1 : null,
+        url: organicIdx >= 0 ? organic[organicIdx].link : null,
+      };
+
+      setResult(organicResult);
+
+      const history = JSON.parse(localStorage.getItem("serp_history") || "[]");
+      history.unshift({
+        date: new Date().toISOString(),
+        result: organicResult,
       });
+      localStorage.setItem(
+        "serp_history",
+        JSON.stringify(history.slice(0, 10))
+      );
     } catch (err: any) {
       setError("Bir hata oluştu. Lütfen tekrar deneyin.");
       console.error(err);
@@ -63,6 +77,7 @@ export default function HomePage() {
               <SearchForm onSearch={handleSearch} loading={loading} />
               {error && <ErrorAlert message={error} />}
               {result && <ResultTable result={result} />}
+              <History />
             </div>
           </div>
         </div>
